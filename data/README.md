@@ -12,10 +12,14 @@ can be directed to the corresponding author and are subject to the platform's ag
 
 ## Files
 
-### `structured_features.csv` (6,057 rows × 14 columns)
+### `structured_features_part1.csv` – `structured_features_part3.csv` (6,057 rows × 14 columns in total)
 
-`row_id` plus the 13 structured features, standardized (continuous variables: zero mean,
-unit variance; binary variables as coded). Column names map to the manuscript's Table 3:
+The 13 structured features plus `row_id`, split into three consecutive row blocks
+(rows 0–2018, 2019–4037, 4038–6056) solely to keep individual files small; concatenating
+the three parts and sorting by `row_id` restores the full table (see
+`code/01_analysis_unified.py::load_data()`). Continuous variables are standardized (zero
+mean, unit variance); binary variables are as coded. Column names map to the manuscript's
+Table 3:
 
 | Column | Manuscript variable |
 |---|---|
@@ -52,4 +56,4 @@ not needed to reproduce any result in the paper.
   analyses in this repository do not rely on that ordering — they re-split the full sample
   with stratified 80/20 splits (seeds 1–50).
 - Reconstruction: `code/01_analysis_unified.py::load_data()` shows how the dense
-  6,057 × 113 design matrix is assembled from these three files.
+  6,057 × 113 design matrix is assembled from these files.
