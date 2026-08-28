@@ -10,12 +10,13 @@ identical text-merged counterpart across 50 repeated stratified splits, and eval
 incremental value of text along four operating dimensions: prediction uncertainty, borrower
 risk segment, decision threshold, and narrative informativeness.
 
-**Headline result:** text never improves ranking metrics (ROC-AUC, PR-AUC); its contribution
-is confined to default detection (Recall), concentrated in ambiguous prediction regions,
-at moderate thresholds (0.4–0.5), and among borrowers with strong credit scores — precisely
-where structured variables are most likely to miss impending default. Dense sentence
+**Headline result:** no statistically significant improvement in ranking metrics (ROC-AUC,
+PR-AUC) is detected in any analysis; the contribution of text is confined to default
+detection (Recall), concentrated in ambiguous prediction regions, at moderate thresholds
+(0.4–0.5), and among borrowers in the top 30% of credit scores — arguably where structured
+variables are least informative about impending default in this sample. Dense sentence
 embeddings (MiniLM, KoSimCSE) do not improve on TF–IDF: they significantly degrade ranking
-in every region (Appendix B).
+in the overall sample and in both uncertainty regions (Appendix B).
 
 ## Repository layout
 
