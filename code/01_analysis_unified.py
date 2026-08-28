@@ -46,7 +46,9 @@ CREDIT_COL = 'credit_score'
 
 
 def load_data():
-    s = pd.read_csv(os.path.join(DATA, 'structured_features.csv'))
+    parts = [pd.read_csv(os.path.join(DATA, f'structured_features_part{i}.csv'))
+             for i in (1, 2, 3)]
+    s = pd.concat(parts, ignore_index=True).sort_values('row_id').reset_index(drop=True)
     t = pd.read_csv(os.path.join(DATA, 'tfidf_features_sparse.csv'))
     l = pd.read_csv(os.path.join(DATA, 'labels.csv'))
     struct_cols = [c for c in s.columns if c != 'row_id']
