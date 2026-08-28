@@ -1,0 +1,38 @@
+<mxfile host="app.diagrams.net" modified="2026-08-27T00:00:00.000Z" agent="claude" version="24.0.0" type="device">
+  <diagram name="Fig1_Research_Pipeline" id="fig1-pipeline">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1650" pageHeight="480" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="data" value="&lt;b&gt;Loan Application Data&lt;/b&gt;&lt;br&gt;N = 6,057&lt;br&gt;(default 55.3%)&lt;br&gt;&lt;br&gt;Stratified 80/20 split&lt;br&gt;Train 4,845 / Test 1,212" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="160" width="185" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="feat_struct" value="&lt;b&gt;Structured Features (13)&lt;/b&gt;&lt;br&gt;Borrower attributes,&lt;br&gt;borrowing history,&lt;br&gt;loan characteristics" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="90" width="215" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="feat_text" value="&lt;b&gt;Text Features (100)&lt;/b&gt;&lt;br&gt;Borrower narratives&lt;br&gt;&#8594; tokenization, stop-word removal&lt;br&gt;&#8594; TF&#8211;IDF (top 100)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="300" y="270" width="215" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="config" value="&lt;b&gt;Two Model Configurations&lt;/b&gt;&lt;br&gt;&lt;br&gt;&#9312; Structured-only (13)&lt;br&gt;&#9313; Text-merged (13 + 100 = 113)&lt;br&gt;&lt;br&gt;identical splits, tuning,&lt;br&gt;and random seeds" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#333333;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="590" y="155" width="220" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="select" value="&lt;b&gt;Base Learner Selection&lt;/b&gt;&lt;br&gt;&lt;br&gt;10 algorithms benchmarked&lt;br&gt;50 repeated stratified splits&lt;br&gt;seed-wise hyperparameter tuning&lt;br&gt;&lt;br&gt;&#8594; &lt;b&gt;CatBoost (CAT)&lt;/b&gt; fixed&lt;br&gt;(mean ROC-AUC + stability)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#333333;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="885" y="150" width="235" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="cond" value="&lt;b&gt;Conditional Effect Framework&lt;/b&gt;&lt;br&gt;&lt;br&gt;D1&#160;&#160;Prediction uncertainty&lt;br&gt;&#160;&#160;&#160;&#160;&#160;&#160;(marginal: p&#770; &#8712; [0.3, 0.7])&lt;br&gt;D2&#160;&#160;False-negative dynamics&lt;br&gt;&#160;&#160;&#160;&#160;&#160;&#160;(high- vs low-risk, &#177;30%)&lt;br&gt;D3&#160;&#160;Threshold sensitivity&lt;br&gt;&#160;&#160;&#160;&#160;&#160;&#160;(&#964; = 0.3&#8211;0.7)&lt;br&gt;D4&#160;&#160;Narrative informativeness&lt;br&gt;&#160;&#160;&#160;&#160;&#160;&#160;(rich vs. sparse text)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#333333;fontSize=12;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1195" y="130" width="250" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="eval" value="&lt;b&gt;Evaluation &amp;amp; Inference&lt;/b&gt;&lt;br&gt;&lt;br&gt;ROC-AUC, PR-AUC,&lt;br&gt;Recall, F1&lt;br&gt;&lt;br&gt;Text effect &#916; (seed-paired)&lt;br&gt;paired t-tests, 95% CIs" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="160" width="200" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;strokeWidth=1.5;" edge="1" parent="1" source="data" target="feat_struct"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;strokeWidth=1.5;" edge="1" parent="1" source="data" target="feat_text"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;strokeWidth=1.5;" edge="1" parent="1" source="feat_struct" target="config"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;strokeWidth=1.5;" edge="1" parent="1" source="feat_text" target="config"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" value="benchmark" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;" edge="1" parent="1" source="config" target="select"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" value="CAT fixed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;" edge="1" parent="1" source="select" target="cond"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;strokeWidth=1.5;" edge="1" parent="1" source="cond" target="eval"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
