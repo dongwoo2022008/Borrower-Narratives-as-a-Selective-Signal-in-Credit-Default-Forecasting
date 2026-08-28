@@ -57,3 +57,11 @@ not needed to reproduce any result in the paper.
   with stratified 80/20 splits (seeds 1–50).
 - Reconstruction: `code/01_analysis_unified.py::load_data()` shows how the dense
   6,057 × 113 design matrix is assembled from these files.
+
+## Relation to the manuscript's Table 3 (raw-scale descriptives)
+
+The structured-feature files here are **standardized model inputs**; they cannot be used
+to reproduce the raw-scale descriptive statistics reported in Table 3 of the manuscript.
+For verification, `results/table3_raw_summary.csv` provides the raw-scale aggregate
+summary (mean, SD, median, quartiles, min, max, n) of the exact variables used for
+modeling, computed from the analysis data.
