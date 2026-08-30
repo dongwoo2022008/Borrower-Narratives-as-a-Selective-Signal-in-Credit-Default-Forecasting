@@ -1,7 +1,8 @@
 # Borrower Narratives as a Selective Signal in Credit Default Forecasting
 
 Replication package for the manuscript *Borrower Narratives as a Selective Signal in Credit
-Default Forecasting* (under review).
+Default Prediction: Evidence from Korean Online Lending* (under review; earlier working
+title: *Borrower Narratives as a Selective Signal in Credit Default Forecasting*).
 
 The study asks **when** borrower-written narratives add value to credit-default forecasts
 beyond a strong structured baseline. Using 6,057 consumer loan applications from a Korean
