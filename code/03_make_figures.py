@@ -86,7 +86,7 @@ plt.close(fig); print(f'Fig2 done (share {share:.1f}%, FN share {fn_share:.1f}%)
 d4 = pd.read_csv(R + 'optA_t8_raw.csv')
 taus = [0.3, 0.4, 0.5, 0.6, 0.7]
 panels = ['Overall', 'High-Risk', 'Low-Risk']
-fig, axes = plt.subplots(1, 3, figsize=(8.6, 3.3), sharey=True)
+fig, axes = plt.subplots(1, 3, figsize=(8.6, 3.5), sharey=True)
 for ax, g in zip(axes, panels):
     ax.axhline(0, color='#666666', lw=0.9)
     ds, los, his = [], [], []
@@ -95,17 +95,18 @@ for ax, g in zip(axes, panels):
         mn, lo, hi, p = nb(gg.rm.values - gg.rs.values)
         ds.append(mn * 100); los.append((mn - lo) * 100); his.append((hi - mn) * 100)
     ax.errorbar(taus, ds, yerr=[los, his], capsize=3, lw=1.5, elinewidth=1.0,
-                markersize=5.5, marker='o', ls='-', color='#2b2b2b',
+                markersize=6, marker='o', ls='-', color='#2b2b2b',
                 markerfacecolor='white', markeredgecolor='#2b2b2b',
                 markeredgewidth=1.1, zorder=3)
-    ax.set_title(g, fontsize=10)
+    ax.set_title(g, fontsize=12)
     ax.set_xticks(taus)
-    ax.set_xlabel('Threshold  $\\tau$')
+    ax.set_xlabel('Threshold  $\\tau$', fontsize=12)
+    ax.tick_params(labelsize=11)
     ax.yaxis.grid(True); ax.set_axisbelow(True)
     for s in ('top', 'right'): ax.spines[s].set_visible(False)
-axes[0].set_ylabel('$\\Delta$ Recall (pp)\nText-merged $-$ Structured-only')
+axes[0].set_ylabel('$\\Delta$ Recall (pp)\nText-merged $-$ Structured-only', fontsize=11.5)
 fig.suptitle('95% CIs, Nadeau–Bengio corrected', x=0.99, y=0.99,
-             ha='right', fontsize=8.5, fontweight='normal', style='italic',
+             ha='right', fontsize=10, fontweight='normal', style='italic',
              color='#555555')
 fig.tight_layout()
 fig.savefig(os.path.join(FOUT, 'Fig3_threshold_sensitivity.png'), bbox_inches='tight')
@@ -129,7 +130,7 @@ for g in ['Overall', 'High-Risk', 'Low-Risk']:
     gg = d3[d3.Group == g].sort_values('seed')
     rows_b.append((g, (gg.fs - gg.fm).values.astype(float)))
 
-fig, (ax, ax2) = plt.subplots(1, 2, figsize=(8.6, 3.6),
+fig, (ax, ax2) = plt.subplots(1, 2, figsize=(8.6, 3.9),
                               gridspec_kw={'width_ratios': [1.45, 1.0],
                                            'wspace': 0.52})
 for axx, rows, xlab, title in (
@@ -149,15 +150,16 @@ for axx, rows, xlab, title in (
             axx.plot([xend, xend], [yv - 0.1, yv + 0.1], color='#3b3b3b', lw=1.2)
         axx.plot(mn, yv, marker='o', ms=6, mfc='white', mec='#1a1a1a', mew=1.2)
     axx.set_yticks(ypos)
-    axx.set_yticklabels([r[0] for r in rows], fontsize=9)
+    axx.set_yticklabels([r[0] for r in rows], fontsize=11)
     axx.set_ylim(-0.6, len(rows) - 0.4)
-    axx.set_xlabel(xlab, fontsize=9.5)
-    axx.set_title(title, loc='left', fontsize=9.5)
+    axx.set_xlabel(xlab, fontsize=11)
+    axx.set_title(title, loc='left', fontsize=11)
+    axx.tick_params(axis='x', labelsize=10.5)
     axx.xaxis.grid(True); axx.set_axisbelow(True)
     for s in ('top', 'right', 'left'): axx.spines[s].set_visible(False)
     axx.tick_params(left=False)
 fig.suptitle('Dots: means over 50 splits; lines: 95% CIs, Nadeau–Bengio corrected',
-             x=0.99, y=1.005, ha='right', fontsize=8.5, fontweight='normal',
+             x=0.99, y=1.005, ha='right', fontsize=10, fontweight='normal',
              style='italic', color='#555555')
 fig.tight_layout(rect=(0, 0, 1, 0.97))
 fig.savefig(os.path.join(FOUT, 'Fig4_conditional_effects_forest.png'), bbox_inches='tight')
