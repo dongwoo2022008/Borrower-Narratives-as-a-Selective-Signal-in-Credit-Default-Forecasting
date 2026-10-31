@@ -95,7 +95,7 @@ for g in ['Overall', 'High-Risk', 'Low-Risk']:
         if stars(p):
             ax.annotate(stars(p), (xi, mn + hi_amt + 0.0005), ha='center', fontsize=8.5,
                         color=styles[g]['color'])
-ax.text(0.45, ax.get_ylim()[0] + 0.0008, 'stable positive zone', ha='center',
+ax.text(0.45, ax.get_ylim()[0] + 0.0008, 'positive zone (nominal)', ha='center',
         fontsize=8.5, color='#555555', style='italic')
 ax.set_xticks(taus)
 ax.set_xlabel('Classification threshold  $\\tau$')
@@ -142,7 +142,7 @@ for (label, mn, lo, hi, sig), yv in zip(rows, ypos):
 ax.set_yticks([]); ax.set_xlim(XL - 0.001, XR)
 ax.set_ylim(-0.8, len(rows) - 0.2)
 ax.set_xlabel('Text effect  ($\\Delta$ = Text-merged $-$ Structured-only)')
-ax.set_title('(a) Conditional text effects with 95% CIs', loc='left')
+ax.set_title('(a) Conditional text effects with 95% CIs (nominal)', loc='left')
 ax.xaxis.grid(True); ax.set_axisbelow(True)
 for s in ('top', 'right', 'left'): ax.spines[s].set_visible(False)
 
@@ -167,7 +167,7 @@ for xi, r, s, h in zip(xb, red, sig2, ci_h):
 ax2.set_ylim(min(ci_l) - 0.5, max(ci_h) + 0.7)
 ax2.set_xticks(xb); ax2.set_xticklabels(tier_names, fontsize=8.5, rotation=15)
 ax2.set_ylabel('FN reduction rate (%)')
-ax2.set_title('(b) False-negative reduction', loc='left')
+ax2.set_title('(b) False-negative reduction (nominal tests)', loc='left')
 ax2.yaxis.grid(True); ax2.set_axisbelow(True)
 for s in ('top', 'right'): ax2.spines[s].set_visible(False)
 fig.savefig(os.path.join(FOUT, 'Fig4_conditional_effects_forest.png'), bbox_inches='tight')
