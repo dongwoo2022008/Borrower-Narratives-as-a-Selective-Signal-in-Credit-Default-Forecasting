@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """Final manuscript figures from the unified re-run (Option A pipeline).
 Design: 80/20 stratified splits, seeds 1-50, CatBoost(it=100, depth=5, lr=0.1,
-auto_class_weights='Balanced', random_state=42); struct-band uncertainty;
-credit-score 30/70 risk tiers; rich/sparse narrative split.
+auto_class_weights='Balanced', random_state=42).
+Inference displayed in all effect figures uses the Nadeau-Bengio variance
+correction (Section 3.6): corrected SE = sd * sqrt(1/J + n_test/n_train)
+with J = 50 and n_test/n_train = 0.25.
 """
 import numpy as np, pandas as pd
 import matplotlib
@@ -24,151 +26,139 @@ R = os.path.join(HERE, '..', 'results', 'raw') + os.sep
 FOUT = os.path.join(HERE, '..', 'figures')
 os.makedirs(FOUT, exist_ok=True)
 
-def stars(p):
-    return '***' if p < 0.001 else '**' if p < 0.01 else '*' if p < 0.05 else ''
+J = 50
+RHO = 0.25          # n_test / n_train for 80/20 splits
+TCRIT = stats.t.ppf(0.975, J - 1)
 
-def paired(df, mets, grp_col=None, grp=None):
+
+def nb(diff):
+    """Mean difference with Nadeau-Bengio-corrected 95% CI and p-value."""
+    diff = np.asarray(diff, dtype=float)
+    mn = diff.mean()
+    se = diff.std(ddof=1) * np.sqrt(1.0 / J + RHO)
+    t = mn / se if se > 0 else 0.0
+    p = 2 * stats.t.sf(abs(t), J - 1)
+    return mn, mn - TCRIT * se, mn + TCRIT * se, p
+
+
+def paired_diff(df, met, grp_col=None, grp=None):
     src = df if grp is None else df[df[grp_col] == grp]
-    piv = src.pivot_table(index='seed', columns='Model', values=mets)
-    out = {}
-    for met in mets:
-        s = piv[(met, 'S')].values; m = piv[(met, 'M')].values
-        diff = m - s; mn = diff.mean()
-        lo, hi = stats.t.interval(0.95, len(diff)-1, loc=mn, scale=stats.sem(diff))
-        t, p = stats.ttest_rel(m, s)
-        out[met] = (mn, lo, hi, p)
-    return out
+    piv = src.pivot_table(index='seed', columns='Model', values=met)
+    return (piv['M'] - piv['S']).values
 
 # ============ Fig 2: probability distribution ============
 hist = pd.read_csv(R + 'fig2_hist.csv')
-centers_csv = hist['bin_center'].values
 h_norm = hist['mean_repaid'].values; h_def = hist['mean_default'].values
 bins = np.arange(0.0, 1.025, 0.025)
 share_line = open(R + 'marginal_share.txt').read()
 share = float(share_line.split('=')[1]) * 100; n_marg = share / 100 * 1212
+cal = pd.read_csv(R + 'calibration_seed.csv')
+bandrows = cal[cal.model == 'band']
+fn_share = bandrows.fn_in_band.sum() / bandrows.fn_total.sum() * 100
 centers = (bins[:-1] + bins[1:]) / 2
 fig, ax = plt.subplots(figsize=(7.2, 4.0))
-ax.axvspan(0.3, 0.7, color='#f5f0d8', zorder=0)
+ax.axvspan(0.3, 0.7, color='#efefef', zorder=0)
 ax.bar(centers, h_norm, width=0.023, color=G['light'], edgecolor='white', linewidth=0.3,
-       label='Actual repaid', zorder=2)
+       label='Non-default ($y=0$)', zorder=2)
 ax.bar(centers, h_def, width=0.023, bottom=h_norm, color=G['dark'], edgecolor='white',
-       linewidth=0.3, label='Actual default', zorder=2)
+       linewidth=0.3, label='Default ($y=1$)', zorder=2)
 ax.axvline(0.3, color='#333333', ls='--', lw=1.1, zorder=3)
-ax.axvline(0.7, color='#333333', ls='-.', lw=1.1, zorder=3)
+ax.axvline(0.7, color='#333333', ls='--', lw=1.1, zorder=3)
+ax.axvline(0.5, color='#666666', ls=':', lw=1.3, zorder=3)
 ymax = (h_norm + h_def).max()
-ax.annotate(f'Marginal region  $\\hat{{p}}\\in[0.3,\\,0.7]$\n{share:.1f}% of test observations'
-            f' (≈{n_marg:.0f} of 1,212 on average)',
-            xy=(0.56, ymax * 1.02), ha='center', va='bottom', fontsize=9.5,
+ax.text(0.502, ymax * 0.99, '$\\tau=0.5$', fontsize=8.5, color='#555555',
+        ha='left', va='top', rotation=90)
+ax.annotate(f'Marginal band  $\\hat{{p}}\\in[0.3,\\,0.7]$\n{share:.1f}% of test observations'
+            f' (≈{n_marg:.0f} of 1,212 on average);\n{fn_share:.1f}% of structured-only'
+            f' false negatives fall here',
+            xy=(0.56, ymax * 1.02), ha='center', va='bottom', fontsize=9,
             bbox=dict(boxstyle='round,pad=0.35', fc='white', ec='#999999', lw=0.8))
-ax.set_xlim(0, 1); ax.set_ylim(0, ymax * 1.24)
+ax.set_xlim(0, 1); ax.set_ylim(0, ymax * 1.33)
 ax.set_xlabel('Predicted default probability (structured-only CAT model)')
 ax.set_ylabel('Mean frequency per split')
 ax.legend(loc='upper left', fontsize=9)
 ax.yaxis.grid(True); ax.set_axisbelow(True)
 for s in ('top', 'right'): ax.spines[s].set_visible(False)
 fig.tight_layout(); fig.savefig(os.path.join(FOUT, 'Fig2_probability_distribution_CAT.png'), bbox_inches='tight')
-plt.close(fig); print(f'Fig2 done (share {share:.1f}%)')
+plt.close(fig); print(f'Fig2 done (share {share:.1f}%, FN share {fn_share:.1f}%)')
 
-# ============ Fig 3: threshold sensitivity ============
+# ============ Fig 3: threshold sensitivity (corrected CIs, 3 panels) ============
 d4 = pd.read_csv(R + 'optA_t8_raw.csv')
 taus = [0.3, 0.4, 0.5, 0.6, 0.7]
-styles = {'Overall':   dict(color='#1a1a1a', marker='o', ls='-'),
-          'High-Risk': dict(color='#5a5a5a', marker='s', ls='--'),
-          'Low-Risk':  dict(color='#9a9a9a', marker='^', ls=':')}
-offs = {'Overall': -0.012, 'High-Risk': 0.0, 'Low-Risk': 0.012}
-fig, ax = plt.subplots(figsize=(7.2, 4.2))
-ax.axhline(0, color='#666666', lw=0.9)
-ax.axvspan(0.375, 0.525, color='#f2f2f2', zorder=0)
-for g in ['Overall', 'High-Risk', 'Low-Risk']:
-    ds, los, his, ps_ = [], [], [], []
+panels = ['Overall', 'High-Risk', 'Low-Risk']
+fig, axes = plt.subplots(1, 3, figsize=(8.6, 3.3), sharey=True)
+for ax, g in zip(axes, panels):
+    ax.axhline(0, color='#666666', lw=0.9)
+    ds, los, his = [], [], []
     for tau in taus:
         gg = d4[(d4.tau == tau) & (d4.Group == g)].sort_values('seed')
-        diff = gg.rm.values - gg.rs.values
-        mn = diff.mean()
-        lo, hi = stats.t.interval(0.95, len(diff)-1, loc=mn, scale=stats.sem(diff))
-        t, p = stats.ttest_rel(gg.rm.values, gg.rs.values)
-        ds.append(mn); los.append(mn-lo); his.append(hi-mn); ps_.append(p)
-    x = np.array(taus) + offs[g]
-    ax.errorbar(x, ds, yerr=[los, his], capsize=3, lw=1.6, elinewidth=1.0, markersize=6,
-                markeredgecolor='white', markeredgewidth=0.6, label=g, **styles[g], zorder=3)
-    for xi, mn, hi_amt, p in zip(x, ds, his, ps_):
-        if stars(p):
-            ax.annotate(stars(p), (xi, mn + hi_amt + 0.0005), ha='center', fontsize=8.5,
-                        color=styles[g]['color'])
-ax.text(0.45, ax.get_ylim()[0] + 0.0008, 'positive zone (nominal)', ha='center',
-        fontsize=8.5, color='#555555', style='italic')
-ax.set_xticks(taus)
-ax.set_xlabel('Classification threshold  $\\tau$')
-ax.set_ylabel('$\\Delta$ Recall  (Text-merged $-$ Structured-only)')
-ax.legend(loc='lower left', fontsize=9)
-ax.yaxis.grid(True); ax.set_axisbelow(True)
-for s in ('top', 'right'): ax.spines[s].set_visible(False)
-fig.tight_layout(); fig.savefig(os.path.join(FOUT, 'Fig3_threshold_sensitivity.png'), bbox_inches='tight')
+        mn, lo, hi, p = nb(gg.rm.values - gg.rs.values)
+        ds.append(mn * 100); los.append((mn - lo) * 100); his.append((hi - mn) * 100)
+    ax.errorbar(taus, ds, yerr=[los, his], capsize=3, lw=1.5, elinewidth=1.0,
+                markersize=5.5, marker='o', ls='-', color='#2b2b2b',
+                markerfacecolor='white', markeredgecolor='#2b2b2b',
+                markeredgewidth=1.1, zorder=3)
+    ax.set_title(g, fontsize=10)
+    ax.set_xticks(taus)
+    ax.set_xlabel('Threshold  $\\tau$')
+    ax.yaxis.grid(True); ax.set_axisbelow(True)
+    for s in ('top', 'right'): ax.spines[s].set_visible(False)
+axes[0].set_ylabel('$\\Delta$ Recall (pp)\nText-merged $-$ Structured-only')
+fig.suptitle('95% CIs, Nadeau–Bengio corrected', x=0.99, y=0.99,
+             ha='right', fontsize=8.5, fontweight='normal', style='italic',
+             color='#555555')
+fig.tight_layout()
+fig.savefig(os.path.join(FOUT, 'Fig3_threshold_sensitivity.png'), bbox_inches='tight')
 plt.close(fig); print('Fig3 done')
 
-# ============ Fig 4: forest + FN panel ============
-d2 = pd.read_csv(R + 'optA_t6_raw.csv'); d2 = d2.rename(columns={'Rec': 'Recall'})
-d9 = pd.read_csv(R + 'optA_t9_raw.csv'); d9 = d9.rename(columns={'Rec': 'Recall'})
-mets = ['ROC', 'PR', 'Recall', 'F1']
-met_label = {'ROC': 'ROC-AUC', 'PR': 'PR-AUC', 'Recall': 'Recall', 'F1': 'F1'}
-groups = [('Marginal cases  ($\\hat{p}\\in[0.3,0.7]$)', d2, 'Marginal'),
-          ('Clear cases  ($\\hat{p}<0.3$ or $>0.7$)', d2, 'Clear'),
-          ('Rich narratives  (≥1 selected term)', d9, 'Rich'),
-          ('Sparse narratives  (no selected term)', d9, 'Sparse')]
-rows = []
-for title, df, grp in groups:
-    rows.append((title, None, None, None, ''))
-    eff = paired(df, mets, 'Group', grp)
-    for met in mets:
-        mn, lo, hi, p = eff[met]
-        rows.append(('   ' + met_label[met], mn, lo, hi, stars(p)))
-
-fig = plt.figure(figsize=(8.6, 6.0))
-gs = fig.add_gridspec(1, 2, width_ratios=[2.6, 1.0], wspace=0.32)
-ax = fig.add_subplot(gs[0])
-ypos = np.arange(len(rows))[::-1]
-ax.axvline(0, color='#666666', lw=0.9)
-XL, XR = -0.0135, 0.014
-for (label, mn, lo, hi, sig), yv in zip(rows, ypos):
-    if mn is None:
-        ax.text(XL, yv, label.strip(), fontsize=9.5, fontweight='bold', va='center')
-        continue
-    ax.plot([lo, hi], [yv, yv], color='#3b3b3b', lw=1.3)
-    ax.plot(mn, yv, marker='o', ms=6.5, mfc=('#1a1a1a' if sig else 'white'),
-            mec='#1a1a1a', mew=1.1)
-    ax.text(XL, yv, label.strip(), fontsize=9, va='center')
-    if sig:
-        ax.text(hi + 0.0006, yv, sig, fontsize=8.5, va='center')
-ax.set_yticks([]); ax.set_xlim(XL - 0.001, XR)
-ax.set_ylim(-0.8, len(rows) - 0.2)
-ax.set_xlabel('Text effect  ($\\Delta$ = Text-merged $-$ Structured-only)')
-ax.set_title('(a) Conditional text effects with 95% CIs (nominal)', loc='left')
-ax.xaxis.grid(True); ax.set_axisbelow(True)
-for s in ('top', 'right', 'left'): ax.spines[s].set_visible(False)
-
+# ============ Fig 4: detection effects summary (corrected CIs) ============
+d1 = pd.read_csv(R + 'optA_t5_raw.csv')
+d2 = pd.read_csv(R + 'optA_t6_raw.csv')
+d9 = pd.read_csv(R + 'optA_t9_raw.csv')
 d3 = pd.read_csv(R + 'optA_t7_raw.csv')
-ax2 = fig.add_subplot(gs[1])
-tier_names = ['Overall', 'High-Risk', 'Low-Risk']
-red, ci_l, ci_h, sig2 = [], [], [], []
-for g in tier_names:
+
+rows_a = [
+    ('Overall', paired_diff(d1, 'Rec')),
+    ('Marginal  ($\\hat{p}\\in[0.3,0.7]$)', paired_diff(d2, 'Rec', 'Group', 'Marginal')),
+    ('Clear  ($\\hat{p}<0.3$ or $>0.7$)', paired_diff(d2, 'Rec', 'Group', 'Clear')),
+    ('Contains selected term', paired_diff(d9, 'Rec', 'Group', 'Rich')),
+    ('No selected term', paired_diff(d9, 'Rec', 'Group', 'Sparse')),
+]
+rows_b = []
+for g in ['Overall', 'High-Risk', 'Low-Risk']:
     gg = d3[d3.Group == g].sort_values('seed')
-    r = gg.rate.values
-    m = r.mean(); lo, hi = stats.t.interval(0.95, len(r)-1, loc=m, scale=stats.sem(r))
-    t, p = stats.ttest_rel(gg.fs.values, gg.fm.values)
-    red.append(m); ci_l.append(lo); ci_h.append(hi); sig2.append(stars(p))
-cols = [G['mid'], G['light'], G['dark']]
-xb = np.arange(3)
-ax2.axhline(0, color='#666666', lw=0.9)
-ax2.bar(xb, red, width=0.58, color=cols, edgecolor='white', lw=0.5, zorder=3)
-err = np.array([[r - l for r, l in zip(red, ci_l)], [h - r for r, h in zip(red, ci_h)]])
-ax2.errorbar(xb, red, yerr=err, fmt='none', ecolor='#1a1a1a', elinewidth=1.0, capsize=3, zorder=4)
-for xi, r, s, h in zip(xb, red, sig2, ci_h):
-    ax2.text(xi, h + 0.12, f'{r:+.2f}%{s}', ha='center', fontsize=8, fontweight='bold')
-ax2.set_ylim(min(ci_l) - 0.5, max(ci_h) + 0.7)
-ax2.set_xticks(xb); ax2.set_xticklabels(tier_names, fontsize=8.5, rotation=15)
-ax2.set_ylabel('FN reduction rate (%)')
-ax2.set_title('(b) False-negative reduction (nominal tests)', loc='left')
-ax2.yaxis.grid(True); ax2.set_axisbelow(True)
-for s in ('top', 'right'): ax2.spines[s].set_visible(False)
+    rows_b.append((g, (gg.fs - gg.fm).values.astype(float)))
+
+fig, (ax, ax2) = plt.subplots(1, 2, figsize=(8.6, 3.6),
+                              gridspec_kw={'width_ratios': [1.45, 1.0],
+                                           'wspace': 0.52})
+for axx, rows, xlab, title in (
+        (ax, rows_a, '$\\Delta$ Recall (pp)',
+         '(a) Change in Recall, Text-merged $-$ Structured-only'),
+        (ax2, rows_b, 'False negatives removed (count per test set)',
+         '(b) Reduction in false-negative counts')):
+    ypos = np.arange(len(rows))[::-1]
+    axx.axvline(0, color='#666666', lw=0.9)
+    for (label, diff), yv in zip(rows, ypos):
+        scale = 100.0 if axx is ax else 1.0
+        mn, lo, hi, p = nb(diff)
+        mn, lo, hi = mn * scale, lo * scale, hi * scale
+        axx.plot([lo, hi], [yv, yv], color='#3b3b3b', lw=1.4,
+                 solid_capstyle='butt')
+        for xend in (lo, hi):
+            axx.plot([xend, xend], [yv - 0.1, yv + 0.1], color='#3b3b3b', lw=1.2)
+        axx.plot(mn, yv, marker='o', ms=6, mfc='white', mec='#1a1a1a', mew=1.2)
+    axx.set_yticks(ypos)
+    axx.set_yticklabels([r[0] for r in rows], fontsize=9)
+    axx.set_ylim(-0.6, len(rows) - 0.4)
+    axx.set_xlabel(xlab, fontsize=9.5)
+    axx.set_title(title, loc='left', fontsize=9.5)
+    axx.xaxis.grid(True); axx.set_axisbelow(True)
+    for s in ('top', 'right', 'left'): axx.spines[s].set_visible(False)
+    axx.tick_params(left=False)
+fig.suptitle('Dots: means over 50 splits; lines: 95% CIs, Nadeau–Bengio corrected',
+             x=0.99, y=1.005, ha='right', fontsize=8.5, fontweight='normal',
+             style='italic', color='#555555')
+fig.tight_layout(rect=(0, 0, 1, 0.97))
 fig.savefig(os.path.join(FOUT, 'Fig4_conditional_effects_forest.png'), bbox_inches='tight')
 plt.close(fig); print('Fig4 done')
