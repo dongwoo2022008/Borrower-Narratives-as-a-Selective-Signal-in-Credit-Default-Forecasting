@@ -5,7 +5,7 @@ N = 6,057 loan applications from a Korean lending platform (2007–2015 applicat
 
 The raw application records and the borrower-written narrative texts are covered by a
 confidentiality agreement with the platform and are **not** distributed. What is released
-here is exactly what the models consume: standardized numeric features and the sparse
+here is exactly what the models consume: quantile-transformed numeric features and the sparse
 TF–IDF representation of the narratives with anonymized term indices. No personal
 information and no text content are included. Reasonable requests for further data access
 can be directed to the corresponding author and are subject to the platform's agreement.
@@ -17,8 +17,11 @@ can be directed to the corresponding author and are subject to the platform's ag
 The 13 structured features plus `row_id`, split into three consecutive row blocks
 (rows 0–2018, 2019–4037, 4038–6056) solely to keep individual files small; concatenating
 the three parts and sorting by `row_id` restores the full table (see
-`code/01_analysis_unified.py::load_data()`). Continuous variables are standardized (zero
-mean, unit variance); binary variables are as coded. Column names map to the manuscript's
+`code/01_analysis_unified.py::load_data()`). All structured variables — including the binary indicators — are mapped through a
+rank-based quantile transformation to a standard normal shape, fitted on the full sample
+(binary columns therefore take the two clipped values ±5.1993376, and skewed counts such
+as `success_count` are not mean-zero). Gradient-boosted trees are insensitive to such
+monotone transformations. Column names map to the manuscript's
 Table 3:
 
 | Column | Manuscript variable |
@@ -60,7 +63,7 @@ not needed to reproduce any result in the paper.
 
 ## Relation to the manuscript's Table 3 (raw-scale descriptives)
 
-The structured-feature files here are **standardized model inputs**; they cannot be used
+The structured-feature files here are **quantile-transformed model inputs**; they cannot be used
 to reproduce the raw-scale descriptive statistics reported in Table 3 of the manuscript.
 For verification, `results/table3_raw_summary.csv` provides the raw-scale aggregate
 summary (mean, SD, median, quartiles, min, max, n) of the exact variables used for

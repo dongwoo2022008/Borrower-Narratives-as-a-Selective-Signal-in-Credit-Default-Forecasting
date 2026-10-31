@@ -24,11 +24,16 @@ analysis (manuscript Figure 5) shows the structured-only model is approximately 
 (ECE ≈ 0.050; Brier 0.173 vs. 0.173 for text-merged) and that 66% of its false negatives at
 τ = 0.5 fall inside the [0.3, 0.7] marginal band (43.7% of observations). Dense sentence
 embeddings (MiniLM, KoSimCSE) do not improve on TF–IDF: they significantly degrade ranking
-in the overall sample and in both uncertainty regions (manuscript Appendix A). A fold-internal
-re-preprocessing robustness check (manuscript Appendix B) shows that the full-sample
+in the overall sample and in both uncertainty regions (manuscript Appendix I). A fold-internal
+re-preprocessing robustness check (manuscript Appendix II) shows that the full-sample
 preprocessing used in the main design is immaterial: refitting all preprocessing within each
-training partition shifts text-merged performance by less than 4 × 10⁻⁴ on every metric
-(n.s.) and changes no conclusion.
+training partition shifts text-merged performance by at most 1 × 10⁻³ on any metric
+(ROC-AUC +0.00032; the largest, F1, +0.00091; all nominal p ≥ 0.29) and changes no conclusion.
+Two additional checks respond to review feedback: a maturity-restricted sensitivity run that
+drops the two most recent application-year cohorts (181 loans, all non-default; the nominal
+Recall gain disappears, Δ = +0.0011, nominal p = 0.35 — `09_maturity_sensitivity.py`), and a
+gating-candidate reconstruction (text activated only inside the [0.3, 0.7] band: −1.80 FN,
++2.10 FP per test set on average, corrected p = 0.49 — `10_gating_candidate.py`).
 
 ## Repository layout
 
@@ -38,10 +43,12 @@ training partition shifts text-merged performance by less than 4 × 10⁻⁴ on 
 │   ├── 02_make_tables.py               # Tables 5–9 with paired t-tests and 95% CIs → results/tables/
 │   ├── 03_make_figures.py              # Figures 2–4 → figures/
 │   ├── 04_make_fig1.py                 # Figure 1 (pipeline diagram) → figures/
-│   ├── 05_robustness_embeddings.py     # manuscript Appendix A: MiniLM / KoSimCSE → results/raw/rob_*.csv
-│   ├── 06_robustness_fold_internal.py  # manuscript Appendix B: fold-internal preprocessing → results/raw/foldint_*.csv
+│   ├── 05_robustness_embeddings.py     # manuscript Appendix I: MiniLM / KoSimCSE → results/raw/rob_*.csv
+│   ├── 06_robustness_fold_internal.py  # manuscript Appendix II: fold-internal preprocessing → results/raw/foldint_*.csv
 │   ├── 07_calibration.py               # reliability bins, Brier/ECE, marginal-band stats → results/raw/calibration_*.csv
-│   └── 08_make_fig5.py                 # Figure 5 (reliability curve) → figures/
+│   ├── 08_make_fig5.py                 # Figure 5 (reliability curve) → figures/
+│   ├── 09_maturity_sensitivity.py      # drops 2 most recent cohorts → results/raw/maturity_sensitivity_t5.csv
+│   └── 10_gating_candidate.py          # [0.3,0.7]-gated policy reconstruction → results/raw/gating_candidate.csv
 ├── data/                        # de-identified model inputs (see data/README.md)
 ├── results/
 │   ├── raw/                     # per-seed outputs (seeds 1–50), incl. appendix, calibration, and NB-corrected records
@@ -61,6 +68,8 @@ python 03_make_figures.py       # rewrites figures/Fig2–4
 python 04_make_fig1.py          # rewrites figures/Fig1
 python 07_calibration.py        # rewrites results/raw/calibration_*.csv
 python 08_make_fig5.py          # rewrites figures/Fig5
+python 09_maturity_sensitivity.py  # rewrites results/raw/maturity_sensitivity_t5.csv
+python 10_gating_candidate.py   # rewrites results/raw/gating_candidate.csv
 ```
 
 Verification without re-training is also possible: `results/raw/` ships with the exact
@@ -71,7 +80,8 @@ are derived from confidential narrative texts and are available on reasonable re
 The fold-internal script (`06_robustness_fold_internal.py`) requires the confidential raw
 narrative file and is provided for transparency; the per-seed outputs it produced
 (`results/raw/foldint_t{5,6,7}.csv`) are included, and its summary is in
-`results/tables/appendix_c_table.md`.
+`results/tables/appendix_c_table.md`. The algorithm-selection stage behind manuscript
+Table 4 is not part of the released scripts.
 
 ## Experimental design (fixed for all reported comparisons)
 
@@ -99,10 +109,12 @@ narrative file and is provided for transparency; the per-seed outputs it produce
 | Table 8 / Figure 3 | `02_make_tables.py` / `03_make_figures.py` | `optA_t8_raw.csv` |
 | Table 9 / Figure 4(a) | `02_make_tables.py` / `03_make_figures.py` | `optA_t9_raw.csv` |
 | Figure 1 | `04_make_fig1.py` | — |
-| Table A1 (manuscript Appendix A) | `05_robustness_embeddings.py` | `results/raw/rob_{MiniLM,KoSimCSE}_t{5–8}.csv`; summary in `results/tables/appendix_b_table.md` |
-| Table B1 (manuscript Appendix B) | `06_robustness_fold_internal.py` | `results/raw/foldint_t{5,6,7}.csv`; summary in `results/tables/appendix_c_table.md` |
+| Table I.1 (manuscript Appendix I) | `05_robustness_embeddings.py` | `results/raw/rob_{MiniLM,KoSimCSE}_t{5–8}.csv`; summary in `results/tables/appendix_b_table.md` |
+| Table II.1 (manuscript Appendix II) | `06_robustness_fold_internal.py` | `results/raw/foldint_t{5,6,7}.csv`; summary in `results/tables/appendix_c_table.md` |
 | Figure 5 (calibration) | `07_calibration.py` + `08_make_fig5.py` | `results/raw/calibration_bins.csv`, `calibration_seed.csv` |
 | Corrected inference (Section 3.6) | computed from per-seed records | `results/raw/nb_corrected_all.csv` |
+| Maturity sensitivity (Section 3.1) | `09_maturity_sensitivity.py` | `results/raw/maturity_sensitivity_t5.csv` |
+| Gating candidate (Section 5.3) | `10_gating_candidate.py` | `results/raw/gating_candidate.csv` |
 
 ## Requirements
 
@@ -115,8 +127,8 @@ additionally uses `konlpy` (Okt) on the confidential raw texts.
 
 The underlying loan-level data were obtained from a Korean lending platform under a
 confidentiality agreement. This repository releases only de-identified, model-ready inputs
-(standardized numeric features and anonymized TF–IDF term indices) that contain no personal
-information and no narrative text. The standardized files cannot reproduce the raw-scale
+(quantile-transformed numeric features and anonymized TF–IDF term indices) that contain no personal
+information and no narrative text. The transformed files cannot reproduce the raw-scale
 descriptive statistics in manuscript Table 3; `results/table3_raw_summary.csv` provides
 that verification aggregate. See `data/README.md` for details.
 
