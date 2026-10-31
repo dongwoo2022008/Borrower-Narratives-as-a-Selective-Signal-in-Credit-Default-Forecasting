@@ -82,11 +82,11 @@ box(SX, SY, SW, SH, 'Sensitivity analyses',
      'Fold-internal preprocessing',
      '(Appendix II)',
      '',
-     'Maturity-restricted cohorts',
+     'Recent-cohort exclusion',
      '(Section 3.1)',
      '',
      'Gating-candidate diagnostic',
-     '(Section 4.6)'],
+     '(Section 5.3)'],
     fc='#fbfbfb', ls='--', body_fs=8.6)
 arrow(MX + MW + 0.12, Y3 + H3 / 2, SX - 0.06, SY + SH / 2, ls='--', ec='#7f7f7f')
 ax.text(SX + SW / 2, SY - 0.22,
