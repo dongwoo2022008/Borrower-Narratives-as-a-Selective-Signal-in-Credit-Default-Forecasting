@@ -31,14 +31,14 @@ Table 3:
 | `loan_amount` | Loan Amount |
 | `interest_rate` | Loan Interest Rate |
 | `loan_year` | Loan Year |
-| `loan_purpose` | Loan Purpose (1 = debt repayment, 0 = other) |
+| `loan_purpose` | Loan Purpose (1 = other purpose, 0 = debt repayment) |
 | `bank_loan` | Bank Loan |
 | `total_count` | Total Count |
 | `success_count` | Success Count |
 | `success_rate` | Success Rate |
 | `num_investors` | Number of Investors |
 | `months_of_service` | Months of Service |
-| `social_insurance` | Social Insurance (1 = enrolled, 0 = not) |
+| `social_insurance` | Social Insurance (1 = not enrolled, 0 = enrolled) |
 
 ### `tfidf_features_sparse.csv` (2,689 nonzero entries)
 
