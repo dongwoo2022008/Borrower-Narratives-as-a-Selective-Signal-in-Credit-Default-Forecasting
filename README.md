@@ -29,7 +29,7 @@ re-preprocessing robustness check (manuscript Appendix II) shows that the full-s
 preprocessing used in the main design is immaterial: refitting all preprocessing within each
 training partition shifts text-merged performance by at most 1 × 10⁻³ on any metric
 (ROC-AUC +0.00032; the largest, F1, +0.00091; all nominal p ≥ 0.29) and changes no conclusion.
-Two additional checks respond to review feedback: a maturity-restricted sensitivity run that
+Two additional checks respond to review feedback: a cohort-exclusion sensitivity run that
 drops the two most recent application-year cohorts (181 loans, all non-default; the nominal
 Recall gain disappears, Δ = +0.0011, nominal p = 0.35 — `09_maturity_sensitivity.py`), and a
 gating-candidate reconstruction (text activated only inside the [0.3, 0.7] band: −1.80 FN,
@@ -37,9 +37,10 @@ gating-candidate reconstruction (text activated only inside the [0.3, 0.7] band:
 `11_cohort_restricted_full.py` additionally repeats every conditional analysis (Tables 6–9,
 calibration, gating) on the restricted 5,876-loan sample: no corrected-standard conclusion
 changes, while point estimates attenuate (the Low-Risk FN reduction disappears).
-`12_cohort_outcome_diagnostic.py` shows why the 181 zero-default loans most plausibly
-reflect incomplete outcome observation (profile-matched earlier loans default at 34.3%;
-a model fitted on earlier cohorts implies ≈101 expected defaults among the 181).
+`12_cohort_outcome_diagnostic.py` shows that the 181 zero-default loans—fully resolved
+repayments—are highly atypical (profile-matched earlier loans default at 34.3%; a model
+fitted on earlier cohorts implies ≈101 expected defaults), consistent with only resolved
+loans entering the sample for the latest application years.
 
 ## Repository layout
 
@@ -123,7 +124,7 @@ Table 4 is not part of the released scripts.
 | Table II.1 (manuscript Appendix II) | `06_robustness_fold_internal.py` | `results/raw/foldint_t{5,6,7}.csv`; summary in `results/tables/appendix_c_table.md` |
 | Figure 3 (calibration) | `07_calibration.py` + `08_make_fig5.py` | `results/raw/calibration_bins.csv`, `calibration_seed.csv` |
 | Corrected inference (Section 3.6) | computed from per-seed records | `results/raw/nb_corrected_all.csv` |
-| Maturity sensitivity (Section 3.1) | `09_maturity_sensitivity.py` | `results/raw/maturity_sensitivity_t5.csv` |
+| Cohort-exclusion sensitivity (Sections 3.1, 4.1) | `09_maturity_sensitivity.py` | `results/raw/maturity_sensitivity_t5.csv` |
 | Gating candidate (Section 5.3) | `10_gating_candidate.py` | `results/raw/gating_candidate.csv` |
 | Cohort-restricted conditional sensitivity (Section 4.1) | `11_cohort_restricted_full.py` | `results/raw/restricted_t{6,7,8,9}.csv`, `restricted_calibration.csv`, `restricted_gating.csv` |
 | Outcome-observability diagnostic (Section 3.1) | `12_cohort_outcome_diagnostic.py` | printed output |
