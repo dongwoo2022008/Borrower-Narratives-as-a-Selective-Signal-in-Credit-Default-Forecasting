@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Maturity-restricted sensitivity (review request).
+"""Cohort-exclusion sensitivity (review request).
 
 Drops the two most recent application-year cohorts (181 loans, all recorded
-as non-default, whose outcome windows may be shorter) and repeats the Table 5
+as non-default; see 12_cohort_outcome_diagnostic.py — the cohort appears
+selectively composed of quickly resolved loans) and repeats the Table 5
 comparison over the same 50 stratified 80/20 splits and fixed CAT
 specification. Output: ../results/raw/maturity_sensitivity_t5.csv
 """

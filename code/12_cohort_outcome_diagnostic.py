@@ -2,15 +2,17 @@
 """Outcome-observability diagnostic for the two most recent cohorts.
 
 The 181 loans from the two most recent application years carry zero
-recorded defaults. This script quantifies how implausible that is if
-their recorded status were a completed outcome:
+recorded defaults even though their statuses are fully resolved
+repayments. This script quantifies how atypical that is relative to the
+earlier cohorts:
   1. cohort-by-year default rates (the discontinuity),
   2. the default rate of earlier-cohort loans with a matching low-rate /
      high-score profile, and the binomial probability of 0/181 at that rate,
   3. the expected number of defaults among the 181 implied by a CatBoost
      model fitted on the earlier cohorts.
-Supports the statement in Section 3.1 that the recorded status of these
-cohorts most plausibly reflects incomplete outcome observation.
+Supports the Section 3.1 discussion that only loans resolved by the
+extraction date appear to have entered the sample for these years
+(outcome-dependent inclusion), rather than a genuine risk shift.
 Prints results; writes no files.
 """
 import os
