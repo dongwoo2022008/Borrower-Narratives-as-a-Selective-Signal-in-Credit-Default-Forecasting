@@ -20,7 +20,7 @@ Nadeau–Bengio (2003) variance correction for repeated resampling — the manus
 inference standard — none of the positive text effects remains statistically significant
 (`results/raw/nb_corrected_all.csv` reports corrected t/p for all 41 Table 5–9 effects), so
 the conditional pattern is reported as descriptive, exploratory evidence. A calibration
-analysis (manuscript Figure 5) shows the structured-only model is approximately calibrated
+analysis (manuscript Figure 3) shows the structured-only model is approximately calibrated
 (ECE ≈ 0.050; Brier 0.173 vs. 0.173 for text-merged) and that 66% of its false negatives at
 τ = 0.5 fall inside the [0.3, 0.7] marginal band (43.7% of observations). Dense sentence
 embeddings (MiniLM, KoSimCSE) do not improve on TF–IDF: they significantly degrade ranking
@@ -41,12 +41,12 @@ gating-candidate reconstruction (text activated only inside the [0.3, 0.7] band:
 ├── code/
 │   ├── 01_analysis_unified.py          # main analysis → results/raw/ (per-seed records, Tables 5–9)
 │   ├── 02_make_tables.py               # Tables 5–9 with paired t-tests and 95% CIs → results/tables/
-│   ├── 03_make_figures.py              # Figures 2–4 → figures/
+│   ├── 03_make_figures.py              # Figures 2, 4, 5 → figures/
 │   ├── 04_make_fig1.py                 # Figure 1 (design diagram) → figures/
 │   ├── 05_robustness_embeddings.py     # manuscript Appendix I: MiniLM / KoSimCSE → results/raw/rob_*.csv
 │   ├── 06_robustness_fold_internal.py  # manuscript Appendix II: fold-internal preprocessing → results/raw/foldint_*.csv
 │   ├── 07_calibration.py               # reliability bins, Brier/ECE, marginal-band stats → results/raw/calibration_*.csv
-│   ├── 08_make_fig5.py                 # Figure 5 (reliability curve) → figures/
+│   ├── 08_make_fig5.py                 # Figure 3 (reliability curve) → figures/
 │   ├── 09_maturity_sensitivity.py      # drops 2 most recent cohorts → results/raw/maturity_sensitivity_t5.csv
 │   └── 10_gating_candidate.py          # [0.3,0.7]-gated policy reconstruction → results/raw/gating_candidate.csv
 ├── data/                        # de-identified model inputs (see data/README.md)
@@ -64,10 +64,10 @@ pip install -r requirements.txt
 cd code
 python 01_analysis_unified.py   # ≈ minutes on a laptop CPU; rewrites results/raw/
 python 02_make_tables.py        # rewrites results/tables/tables_5_9.md
-python 03_make_figures.py       # rewrites figures/Fig2–4
+python 03_make_figures.py       # rewrites figures/Fig2, Fig4, Fig5
 python 04_make_fig1.py          # rewrites figures/Fig1
 python 07_calibration.py        # rewrites results/raw/calibration_*.csv
-python 08_make_fig5.py          # rewrites figures/Fig5
+python 08_make_fig5.py          # rewrites figures/Fig3 (calibration)
 python 09_maturity_sensitivity.py  # rewrites results/raw/maturity_sensitivity_t5.csv
 python 10_gating_candidate.py   # rewrites results/raw/gating_candidate.csv
 ```
@@ -105,13 +105,13 @@ Table 4 is not part of the released scripts.
 | Table 4 (algorithm benchmark) | model-selection stage (not part of this package’s scripts) | — |
 | Table 5 | `02_make_tables.py` | `results/raw/optA_t5_raw.csv` |
 | Table 6 / Figure 2 | `02_make_tables.py` / `03_make_figures.py` | `optA_t6_raw.csv`, `fig2_hist.csv` |
-| Table 7 / Figure 4(b) | `02_make_tables.py` / `03_make_figures.py` | `optA_t7_raw.csv` |
-| Table 8 / Figure 3 | `02_make_tables.py` / `03_make_figures.py` | `optA_t8_raw.csv` |
-| Table 9 / Figure 4(a) | `02_make_tables.py` / `03_make_figures.py` | `optA_t9_raw.csv` |
+| Table 7 / Figure 5(b) | `02_make_tables.py` / `03_make_figures.py` | `optA_t7_raw.csv` |
+| Table 8 / Figure 4 | `02_make_tables.py` / `03_make_figures.py` | `optA_t8_raw.csv` |
+| Table 9 / Figure 5(a) | `02_make_tables.py` / `03_make_figures.py` | `optA_t9_raw.csv` |
 | Figure 1 | `04_make_fig1.py` | — |
 | Table I.1 (manuscript Appendix I) | `05_robustness_embeddings.py` | `results/raw/rob_{MiniLM,KoSimCSE}_t{5–8}.csv`; summary in `results/tables/appendix_b_table.md` |
 | Table II.1 (manuscript Appendix II) | `06_robustness_fold_internal.py` | `results/raw/foldint_t{5,6,7}.csv`; summary in `results/tables/appendix_c_table.md` |
-| Figure 5 (calibration) | `07_calibration.py` + `08_make_fig5.py` | `results/raw/calibration_bins.csv`, `calibration_seed.csv` |
+| Figure 3 (calibration) | `07_calibration.py` + `08_make_fig5.py` | `results/raw/calibration_bins.csv`, `calibration_seed.csv` |
 | Corrected inference (Section 3.6) | computed from per-seed records | `results/raw/nb_corrected_all.csv` |
 | Maturity sensitivity (Section 3.1) | `09_maturity_sensitivity.py` | `results/raw/maturity_sensitivity_t5.csv` |
 | Gating candidate (Section 5.3) | `10_gating_candidate.py` | `results/raw/gating_candidate.csv` |
