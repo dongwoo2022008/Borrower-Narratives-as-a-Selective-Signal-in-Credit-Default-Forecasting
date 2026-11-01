@@ -34,6 +34,9 @@ drops the two most recent application-year cohorts (181 loans, all non-default; 
 Recall gain disappears, Δ = +0.0011, nominal p = 0.35 — `09_maturity_sensitivity.py`), and a
 gating-candidate reconstruction (text activated only inside the [0.3, 0.7] band: −1.80 FN,
 +2.10 FP per test set on average, corrected p = 0.49 — `10_gating_candidate.py`).
+`11_cohort_restricted_full.py` additionally repeats every conditional analysis (Tables 6–9,
+calibration, gating) on the restricted 5,876-loan sample: no corrected-standard conclusion
+changes, while point estimates attenuate (the Low-Risk FN reduction disappears).
 
 ## Repository layout
 
@@ -48,7 +51,8 @@ gating-candidate reconstruction (text activated only inside the [0.3, 0.7] band:
 │   ├── 07_calibration.py               # reliability bins, Brier/ECE, marginal-band stats → results/raw/calibration_*.csv
 │   ├── 08_make_fig5.py                 # Figure 3 (reliability curve) → figures/
 │   ├── 09_maturity_sensitivity.py      # drops 2 most recent cohorts → results/raw/maturity_sensitivity_t5.csv
-│   └── 10_gating_candidate.py          # [0.3,0.7]-gated policy reconstruction → results/raw/gating_candidate.csv
+│   ├── 10_gating_candidate.py          # [0.3,0.7]-gated policy reconstruction → results/raw/gating_candidate.csv
+│   └── 11_cohort_restricted_full.py    # full conditional sensitivity on n=5,876 → results/raw/restricted_*.csv
 ├── data/                        # de-identified model inputs (see data/README.md)
 ├── results/
 │   ├── raw/                     # per-seed outputs (seeds 1–50), incl. appendix, calibration, and NB-corrected records
@@ -70,6 +74,7 @@ python 07_calibration.py        # rewrites results/raw/calibration_*.csv
 python 08_make_fig5.py          # rewrites figures/Fig3 (calibration)
 python 09_maturity_sensitivity.py  # rewrites results/raw/maturity_sensitivity_t5.csv
 python 10_gating_candidate.py   # rewrites results/raw/gating_candidate.csv
+python 11_cohort_restricted_full.py  # rewrites results/raw/restricted_*.csv
 ```
 
 Verification without re-training is also possible: `results/raw/` ships with the exact
@@ -115,6 +120,7 @@ Table 4 is not part of the released scripts.
 | Corrected inference (Section 3.6) | computed from per-seed records | `results/raw/nb_corrected_all.csv` |
 | Maturity sensitivity (Section 3.1) | `09_maturity_sensitivity.py` | `results/raw/maturity_sensitivity_t5.csv` |
 | Gating candidate (Section 5.3) | `10_gating_candidate.py` | `results/raw/gating_candidate.csv` |
+| Cohort-restricted conditional sensitivity (Section 4.1) | `11_cohort_restricted_full.py` | `results/raw/restricted_t{6,7,8,9}.csv`, `restricted_calibration.csv`, `restricted_gating.csv` |
 
 ## Requirements
 
