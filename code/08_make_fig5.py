@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-"""Figure 5: held-out calibration of the structured-only CAT model.
+"""Figure 3: held-out calibration of the structured-only CAT model.
 
 Reliability curve averaged over 50 held-out test sets; the shaded band shows
 across-split variability (±1 SD of the per-split observed default rate per
 bin); point size is proportional to the mean number of observations per bin.
 Input : ../results/raw/calibration_bins.csv, calibration_seed.csv
-Output: ../figures/Fig5_calibration.png
+Output: ../figures/Fig3_calibration.png
 """
 import os
 import numpy as np
@@ -58,5 +58,5 @@ ax.set_xlim(0, 1)
 ax.set_ylim(0, 1)
 ax.legend(frameon=False, fontsize=7.2, loc='upper left')
 fig.tight_layout()
-fig.savefig(os.path.join(FIG, 'Fig5_calibration.png'), bbox_inches='tight')
-print(f'saved Fig5_calibration.png (point size ~ bin n; ECE {ece:.3f}, Brier {brier:.3f})')
+fig.savefig(os.path.join(FIG, 'Fig3_calibration.png'), bbox_inches='tight')
+print(f'saved Fig3_calibration.png (point size ~ bin n; ECE {ece:.3f}, Brier {brier:.3f})')
