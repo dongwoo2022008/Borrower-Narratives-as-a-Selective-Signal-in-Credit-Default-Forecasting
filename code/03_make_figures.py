@@ -82,7 +82,7 @@ for s in ('top', 'right'): ax.spines[s].set_visible(False)
 fig.tight_layout(); fig.savefig(os.path.join(FOUT, 'Fig2_probability_distribution_CAT.png'), bbox_inches='tight')
 plt.close(fig); print(f'Fig2 done (share {share:.1f}%, FN share {fn_share:.1f}%)')
 
-# ============ Fig 3: threshold sensitivity (corrected CIs, 3 panels) ============
+# ============ Fig 4: threshold sensitivity (corrected CIs, 3 panels) ============
 d4 = pd.read_csv(R + 'optA_t8_raw.csv')
 taus = [0.3, 0.4, 0.5, 0.6, 0.7]
 panels = ['Overall', 'High-Risk', 'Low-Risk']
@@ -109,10 +109,10 @@ fig.suptitle('95% CIs, Nadeau–Bengio corrected', x=0.99, y=0.99,
              ha='right', fontsize=10, fontweight='normal', style='italic',
              color='#555555')
 fig.tight_layout()
-fig.savefig(os.path.join(FOUT, 'Fig3_threshold_sensitivity.png'), bbox_inches='tight')
-plt.close(fig); print('Fig3 done')
+fig.savefig(os.path.join(FOUT, 'Fig4_threshold_sensitivity.png'), bbox_inches='tight')
+plt.close(fig); print('Fig4 done')
 
-# ============ Fig 4: detection effects summary (corrected CIs) ============
+# ============ Fig 5: detection effects summary (corrected CIs) ============
 d1 = pd.read_csv(R + 'optA_t5_raw.csv')
 d2 = pd.read_csv(R + 'optA_t6_raw.csv')
 d9 = pd.read_csv(R + 'optA_t9_raw.csv')
@@ -162,5 +162,5 @@ fig.suptitle('Dots: means over 50 splits; lines: 95% CIs, Nadeau–Bengio correc
              x=0.99, y=1.005, ha='right', fontsize=10, fontweight='normal',
              style='italic', color='#555555')
 fig.tight_layout(rect=(0, 0, 1, 0.97))
-fig.savefig(os.path.join(FOUT, 'Fig4_conditional_effects_forest.png'), bbox_inches='tight')
-plt.close(fig); print('Fig4 done')
+fig.savefig(os.path.join(FOUT, 'Fig5_conditional_effects_forest.png'), bbox_inches='tight')
+plt.close(fig); print('Fig5 done')
